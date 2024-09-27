@@ -1,0 +1,13 @@
+site_name: "Service PMR Toulouse"
+theme:
+  name: "material"
+  logo: "images/image.png"  # Spécifiez le chemin de votre logo ici
+
+nav:
+  - Accueil: index.md
+  - Aperçu du projet: project-overview.md
+  - Utilisation: usage.md
+
+extra_javascript:
+  - js/custom.js
+

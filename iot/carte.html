@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carte des Places PMR</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+    <h1>Carte des Places PMR</h1>
+    <div id="map"></div>
+    
+    <script>
+        // Initialiser la carte Leaflet
+        const map = L.map('map').setView([43.6045, 1.444], 14);
+
+        // Ajouter une couche de carte (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Configuration du client MQTT
+        const client = mqtt.connect('ws://192.168.6.13:9001'); // Assurez-vous que le port et l'URL sont corrects
+
+        const markers = {};
+
+        client.on('connect', function () {
+            console.log('Connected to MQTT broker');
+            client.subscribe('pmr_parking/locations');
+        });
+
+        client.on('message', function (topic, message) {
+            const data = JSON.parse(message.toString());
+            
+            if (markers[data.place_id]) {
+                
+                markers[data.place_id].setLatLng([data.latitude, data.longitude])
+                    .setPopupContent(`Place ID: ${data.place_id}`);
+            } else {
+                markers[data.place_id] = L.marker([data.latitude, data.longitude])
+                    .bindPopup(`Place ID: ${data.place_id}`)
+                    .addTo(map);
+            }
+        });
+    </script>
+</body>
+</html>
