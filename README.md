@@ -2,7 +2,7 @@
 
 ## Auteurs
 - **Brefuel Mathis**
-- **Al-Masri Marwan**
+- **Al Masri Marwan**
 - **Espinasse Paul**
 
 ---
