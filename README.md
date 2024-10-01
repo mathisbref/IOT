@@ -52,7 +52,7 @@ Ce projet vise à simuler l’installation d’un dispositif capable de détecte
 2. Se placer dans le dossier du projet :  
    `cd iot`
 3. Installer la librairie **paho-mqtt** :  
-   `pip install paho-mqtt`
+   `sudo apt install python3-paho-mqtt`
 4. Lancer le simulateur Python :  
    `python3 simul.py`
 5. Se rendre dans le dossier **PMR-project** et lancer MkDocs :  
@@ -70,9 +70,10 @@ Ce projet vise à simuler l’installation d’un dispositif capable de détecte
 
 1. **Configuration du Broker MQTT**
     ```python
-    broker = "192.168.6.13"
+    broker = "localhost"
     port = 1883
-    topic = "pmr_parking/locations"
+    topic_places = "pmr_parking/places"  # Sujet pour l'envoi des emplacements initiaux
+    topic_updates = "pmr_parking/updates"  # Sujet pour l'envoi des mises à jour de disponibilité
     ```
 
 2. **Connexion au Broker MQTT**
