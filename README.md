@@ -71,7 +71,7 @@ protocol websockets
 persistence true
 ```
 ```
-sudo systemctl start mosquitto
+sudo systemctl restart mosquitto
 ```
 
 ### 2.2 Installation du projet
