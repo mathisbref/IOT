@@ -91,9 +91,9 @@ sudo systemctl restart mosquitto
 
 #### Bibliothèques utilisées
 - **paho.mqtt.client** : Communication via le protocole MQTT
-- **json** : Formatage des données en JSON
-- **time** : Manipulation du temps pour horodatage et pauses
-- **random** : Génération de valeurs aléatoires pour les positions géographiques
+- **json** : Manipulation des données en JSON
+- **time** : Manipulation des horodatages et gestion des pauses
+- **random** : Génération de valeurs aléatoires pour les mises à jour de disponibilité
 
 #### Explication du code
 
@@ -104,6 +104,8 @@ sudo systemctl restart mosquitto
     topic_places = "pmr_parking/places"  # Sujet pour l'envoi des emplacements initiaux
     topic_updates = "pmr_parking/updates"  # Sujet pour l'envoi des mises à jour de disponibilité
     ```
+    - `broker` définit l'adresse du serveur MQTT.
+    - `topic_places` et `topic_updates` sont les topics utilisés pour envoyer respectivement les emplacements des places PMR et les mises à jour de disponibilité.
 
 2. **Connexion au Broker MQTT**
     ```python
@@ -112,27 +114,85 @@ sudo systemctl restart mosquitto
     client.connect(broker, port, 60)
     client.loop_start()
     ```
+    - Création du client MQTT et connexion au broker. La fonction `on_connect` est appelée pour indiquer le succès de la connexion.
+    - `client.loop_start()` démarre une boucle qui maintient la connexion au broker.
 
-3. **Initialisation des places PMR**
+3. **Chargement des données des places PMR depuis un fichier JSON**
     ```python
-    places = ["A"] * 40
-    for i in range(40):
-        places[i] += str(i)
+    with open('pmr.json') as f:
+        places = json.load(f)
     ```
+    - Le fichier `pmr.json` est chargé, contenant les informations des places PMR, notamment les coordonnées GPS et l'identifiant unique.
 
-4. **Simulation des données des places PMR**
+4. **Initialisation des données des places PMR**
+    ```python
+    places_data = {}
+    for place in places:
+        if place["no"] is not None:  # Vérifie si l'identifiant est non nul
+            lat = place["geo_point_2d"]["lat"]
+            lon = place["geo_point_2d"]["lon"]
+            availability = True  # Disponibilité initiale à True pour toutes les places
+            places_data[place["no"]] = {
+                "latitude": lat,
+                "longitude": lon,
+                "availability": availability
+            }
+    ```
+    - Un dictionnaire `places_data` est créé, contenant les informations des places, telles que leur latitude, longitude et disponibilité.
+
+5. **Conversion du dictionnaire en liste**
+    ```python
+    places_data = [{'id': id, **info} for id, info in places_data.items()]
+    ```
+    - Le dictionnaire `places_data` est converti en une liste de dictionnaires, où chaque élément contient un identifiant, la latitude, la longitude et l'état de disponibilité.
+
+6. **Envoi initial des informations des places PMR**
+    ```python
+    payload_places = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "places": places_data[:100]  # Envoi des 100 premières places
+    }
+    client.publish(topic_places, json.dumps(payload_places))
+    print(f"Published initial places: {payload_places}")
+    ```
+    - Les informations des 100 premières places PMR sont envoyées au topic `pmr_parking/places`, avec un horodatage.
+
+7. **Mise à jour de la disponibilité des places PMR**
     ```python
     while True:
-        lat = center_lat + random.uniform(-0.02, 0.02)
-        lon = center_lon + random.uniform(-0.02, 0.02)
-        payload = {"timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"), "place_id": place, "latitude": lat, "longitude": lon}
-        client.publish(topic, json.dumps(payload))
-        time.sleep(1)
-    ```
+        for _ in range(min(20, len(places_data[:100]))):
+            place = random.choice(places_data[:100])
+            place["availability"] = random.choice([True, False])
 
-5. **Arrêt de la boucle**
+            payload_update = {
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "place_id": place["id"],
+                "availability": place["availability"],
+                "latitude": place["latitude"],
+                "longitude": place["longitude"]
+            }
+            client.publish(topic_updates, json.dumps(payload_update))
+            print(f"Published update: {payload_update}")
+    ```
+    - À chaque itération, la disponibilité de 20 places parmi les 100 premières est mise à jour aléatoirement. Ces informations sont ensuite publiées sur le topic `pmr_parking/updates`.
+
+8. **Ré-envoi périodique des emplacements**
     ```python
-    client.loop_stop()
+    if current_time - last_send_time >= 30:
+        payload_places = {
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "places": places_data[:100]  # Ré-envoi des 100 premières places
+        }
+        client.publish(topic_places, json.dumps(payload_places))
+        print(f"Published initial places again: {payload_places}")
+        last_send_time = current_time
     ```
+    - Toutes les 30 secondes, les 100 premières places PMR sont ré-envoyées pour maintenir les données à jour.
 
-Ce script Python simule l’envoi de données de détection via MQTT, permettant de surveiller l’occupation des places PMR dans une ville.
+9. **Pause entre les mises à jour**
+    ```python
+    time.sleep(5)
+    ```
+    - Le script fait une pause de 5 secondes entre chaque cycle de mise à jour.
+
+
