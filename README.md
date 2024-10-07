@@ -50,7 +50,7 @@ Ce projet vise à simuler l’installation d’un dispositif capable de détecte
 1. Cloner le dépôt GitHub :  
    `git clone https://github.com/mathisbref/IOT.git`
 2. Se placer dans le dossier du projet :  
-   `cd iot`
+   `cd IOT/iot`
 3. Installer la librairie **paho-mqtt** :  
    `sudo apt install python3-paho-mqtt`
 4. Lancer le simulateur Python :  
