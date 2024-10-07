@@ -45,7 +45,36 @@ Ce projet vise à simuler l’installation d’un dispositif capable de détecte
 
 ## 2. Mise en place
 
-### 2.1 Installation du projet
+### 2.1 Prérequis
+
+1. Mkdocs :
+```
+sudo apt-get update
+```
+```
+sudo apt install mkdocs mkdocs-material mkdocs-material-extensions
+```
+2. Broker MQTT
+```
+sudo apt-get install mosquitto
+```
+Modifier la configuration du broker :
+```
+sudo nano /etc/mosquitto/mosquitto.conf
+```
+Rajouter:
+```
+allow_anonymous true
+listener 1883
+listener 9001
+protocol websockets
+persistence true
+```
+```
+sudo systemctl start mosquitto
+```
+
+### 2.2 Installation du projet
 
 1. Cloner le dépôt GitHub :  
    `git clone https://github.com/mathisbref/IOT.git`
@@ -55,10 +84,10 @@ Ce projet vise à simuler l’installation d’un dispositif capable de détecte
    `sudo apt install python3-paho-mqtt`
 4. Lancer le simulateur Python :  
    `python3 simul.py`
-5. Se rendre dans le dossier **PMR-project** et lancer MkDocs :  
+5. Dans un autre temrinal se rendre dans le dossier **PMR-project** et lancer MkDocs :  
    `mkdocs serve`
 
-### 2.2 Explication du script Python
+### 2.3 Explication du script Python
 
 #### Bibliothèques utilisées
 - **paho.mqtt.client** : Communication via le protocole MQTT
