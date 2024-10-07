@@ -11,6 +11,8 @@
 
 Ce projet vise à simuler l’installation d’un dispositif capable de détecter la présence d’un véhicule sur une place de stationnement réservée aux personnes à mobilité réduite (PMR). Cela permettra de connaître en temps réel les places PMR libres dans la ville de Toulouse, facilitant ainsi la mobilité des personnes concernées.
 
+Le projet est situé sur un site en MarkDown affichant la carte qui montre en temps réel les places PMR disponible.
+
 ### 1.1 Compétences à acquérir
 
 - **Spécifications et conception**
