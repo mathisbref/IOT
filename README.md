@@ -197,4 +197,7 @@ sudo systemctl restart mosquitto
     ```
     - Le script fait une pause de 5 secondes entre chaque cycle de mise à jour.
 
+# Conclusion
+Ce projet simule l'installation d'un dispositif IoT permettant de détecter en temps réel la disponibilité des places de parking réservées aux personnes à mobilité réduite (PMR) dans la ville de Toulouse. En utilisant un simulateur Python et le protocole MQTT, les données des places sont envoyées et mises à jour régulièrement pour faciliter l'accès à ces places. Ce projet allie compétences en architecture IoT et intégration de services web pour une solution scalable et fonctionnelle permettant d'aider les PMR.
+
 
